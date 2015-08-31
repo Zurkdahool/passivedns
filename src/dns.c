@@ -30,6 +30,7 @@
 #include <pcap.h>
 #include "passivedns.h"
 #include "dns.h"
+#include "hiredis.h"
 
 #ifdef HAVE_JSON
 #include <jansson.h>
@@ -1072,6 +1073,11 @@ void print_passet(pdns_record *l, pdns_asset *p, ldns_rr *rr,
         p->last_print = p->last_seen;
         p->seen = 0;
     }
+
+ /* Print to redis */
+    redisReply *redisrepl;
+    redisrepl = redisCommand(config.rediscon, "RPUSH %s %s", "dns", output);
+    free(redisrepl);
 
 #ifdef HAVE_JSON
     if ((is_err_record && config.use_json_nxd) ||

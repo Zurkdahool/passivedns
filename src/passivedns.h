@@ -21,6 +21,7 @@
 
 /*  I N C L U D E S  **********************************************************/
 #include "config.h"
+#include "hiredis.h"
 
 #ifdef HAVE_PFRING
 #include <pfring.h>
@@ -531,6 +532,11 @@ typedef struct _globalconfig {
     char                *configpath;       /* Path to config directory */
     uint32_t            dnsprinttime;      /* Minimum time between printing duplicate DNS info */
     uint32_t            dnscachetimeout;   /* Time before a DNS record/asset times out if not updated */
+    char                *redis_host;       /* redis host */
+    char                *tags;     	   /* redis json tags */
+    int                 redis_port;        /* redis port */
+    redisContext        *rediscon;       /* redis contect */
+
 } globalconfig;
 
 #define ISSET_CONFIG_VERBOSE(config)    ((config).cflags & CONFIG_VERBOSE)

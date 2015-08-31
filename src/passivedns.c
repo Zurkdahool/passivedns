@@ -44,6 +44,7 @@
 #include <ctype.h>
 #include "passivedns.h"
 #include "dns.h"
+#include "hiredis.h"
 
 #ifdef HAVE_JSON
 #include <jansson.h>
@@ -1115,6 +1116,7 @@ void show_version()
     olog("\n");
     olog("[*] PassiveDNS %s\n", VERSION);
     olog("[*] By Edward Bjarte Fjellskål <edward.fjellskaal@gmail.com>\n");
+    olog("[*] Redis fork modification by Marco Goebel <mg@zurk.org>\n");
     olog("[*] Using %s\n", pcap_lib_version());
     olog("[*] Using ldns version %s\n",ldns_version());
 #ifdef HAVE_PFRING
@@ -1159,6 +1161,9 @@ int main(int argc, char *argv[])
     config.mem_limit_max = (256 * 1024 * 1024);
     config.dnsprinttime = DNSPRINTTIME;
     config.dnscachetimeout =  DNSCACHETIMEOUT;
+    config.redis_host = "redis-01.ipx";
+    config.redis_port = 6379;
+    config.tags = "dns";
     config.dnsf = 0;
     config.log_delimiter = "||";
     config.fieldsf = 0;
@@ -1484,6 +1489,26 @@ int main(int argc, char *argv[])
     }
 
     alarm(TIMEOUT);
+
+    /* redis connection */
+
+        redisContext *rediscon;
+        redisReply *redisrepl;
+
+        config.rediscon = redisConnect(config.redis_host, config.redis_port);
+
+     if (config.rediscon->err) {
+        fprintf(stderr, "Cannot connect to Redis at %s:%d: %s\n",
+                config.redis_host, config.redis_port, rediscon->errstr);
+        return (1);
+    } else {
+        olog("[*] Redis connection to: %s:%d successful\n\n",config.redis_host,config.redis_port);
+        }
+
+    redisrepl = redisCommand(config.rediscon,"PING");
+    olog("[*] Redis PING: %s\n\n",redisrepl->str);
+
+   /* end redis con */
 
     if (!config.pcap_file) olog("[*] Sniffing...\n\n");
 
