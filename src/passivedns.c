@@ -1161,7 +1161,7 @@ int main(int argc, char *argv[])
     config.mem_limit_max = (256 * 1024 * 1024);
     config.dnsprinttime = DNSPRINTTIME;
     config.dnscachetimeout =  DNSCACHETIMEOUT;
-    config.redis_host = "redis-01.ipx";
+    config.redis_host = "redis-01";
     config.redis_port = 6379;
     config.tags = "dns";
     config.dnsf = 0;

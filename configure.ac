@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_INIT([passivedns], [1.2.0])
+AC_INIT([passivedns],[1.2.0])
 AM_INIT_AUTOMAKE
 AC_USE_SYSTEM_EXTENSIONS
 AC_CONFIG_SRCDIR([src/passivedns.h])
@@ -211,5 +211,6 @@ AC_FUNC_FORK
 AC_FUNC_STRNLEN
 AC_CHECK_FUNCS([alarm dup2 endgrent endpwent ftruncate getcwd memset strdup strerror strtol strtoul])
 
-AC_OUTPUT(Makefile src/Makefile)
+AC_CONFIG_FILES([Makefile src/Makefile])
+AC_OUTPUT
 
