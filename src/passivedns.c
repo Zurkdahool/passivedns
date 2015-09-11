@@ -1088,6 +1088,7 @@ void usage()
     olog(" -g <gid>        Group ID to drop privileges to.\n");
     olog(" -T <dir>        Directory to chroot into.\n");
     olog(" -D              Run as daemon.\n");
+    olog(" -H              Redis Hostname (without port).\n");
     olog(" -V              Show version and exit.\n");
     olog(" -h              This help message.\n\n");
     olog(" FIELDS:\n");
@@ -1197,7 +1198,7 @@ int main(int argc, char *argv[])
     signal(SIGUSR1, print_pdns_stats);
     signal(SIGUSR2, expire_all_dns_records);
 
-#define ARGS "i:r:c:nyYjJl:L:d:hb:Dp:C:P:S:f:X:u:g:T:V"
+#define ARGS "i:r:H:c:nyYjJl:L:d:hb:Dp:C:P:S:f:X:u:g:T:V"
 
     while ((ch = getopt(argc, argv, ARGS)) != -1)
         switch (ch) {
@@ -1276,6 +1277,9 @@ int main(int argc, char *argv[])
             config.cluster_id = strtol(optarg, NULL, 0);
             break;
 #endif /* HAVE_PFRING */
+	case 'H':
+            config.redis_host = optarg;
+            break;
         case 'h':
             usage();
             exit(0);
