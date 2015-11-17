@@ -96,6 +96,17 @@ if test "$LIBLDNS_L" = "no"; then
     exit 1
 fi
 
+#check for hiredis
+LDFLAGS="${LDFLAGS} -lhiredis"
+
+# Check or ldns headers
+AC_CHECK_HEADER(hiredis/hiredis.h,,LIBHIREDIS_H="no")
+
+if test "$LIBLDNS_H" = "no"; then
+    echo -e "\n  ERROR! redis headers not found\n"
+    exit 1
+fi
+
 # Checks for PF_RING.
 AC_ARG_ENABLE(pfring,
     AS_HELP_STRING([--enable-pfring], [Enable PF_RING support]))
