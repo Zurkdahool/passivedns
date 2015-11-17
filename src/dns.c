@@ -359,12 +359,14 @@ int cache_dns_objects(packetinfo *pi, ldns_rdf *rdf_data,
                 }
                 break;
 
+#ifdef LDNS_RR_TYPE_NSEC3PARAM
             case LDNS_RR_TYPE_NSEC3PARAM:
                 if (config.dnsf & DNS_CHK_DNSSEC) {
                     offset = 0;
                     to_offset = 4;
                 }
                 break;
+#endif /* LDNS_RR_TYPE_NSEC3PARAM */
             case LDNS_RR_TYPE_NSEC3:
                 if (config.dnsf & DNS_CHK_DNSSEC) {
                     offset = 0;
@@ -746,9 +748,11 @@ void print_passet(pdns_record *l, pdns_asset *p, ldns_rr *rr,
         case LDNS_RR_TYPE_DNSKEY:
             snprintf(rr_type, 10, "DNSKEY");
             break;
+#ifdef LDNS_RR_TYPE_NSEC3PARAM
         case LDNS_RR_TYPE_NSEC3PARAM:
             snprintf(rr_type, 11, "NSEC3PARAM");
             break;
+#endif /* LDNS_RR_TYPE_NSEC3PARAM */
         case LDNS_RR_TYPE_NSEC3:
             snprintf(rr_type, 10, "NSEC3");
             break;
@@ -955,8 +959,20 @@ void print_passet(pdns_record *l, pdns_asset *p, ldns_rr *rr,
     else {
 #endif /* HAVE_JSON */
         /* Print timestamp */
-        if ((config.fieldsf & FIELD_TIMESTAMP_S) &&
-            (config.fieldsf & FIELD_TIMESTAMP_MS)) {
+        if ((config.fieldsf & FIELD_TIMESTAMP_YMDHMS)) {
+            struct tm *tmpTime;
+            char timestr[200];
+            tmpTime = localtime(&l->last_seen.tv_sec);
+            strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", tmpTime);
+            if (is_err_record) {
+                offset += snprintf(output, sizeof(buffer) - offset, "%s.%06lu",
+                                   timestr, l->last_seen.tv_usec);
+            } else {
+                offset += snprintf(output, sizeof(buffer) - offset, "%s.%06lu",
+                                   timestr, p->last_seen.tv_usec);
+            }
+        } else if ((config.fieldsf & FIELD_TIMESTAMP_S) &&
+                   (config.fieldsf & FIELD_TIMESTAMP_MS)) {
             if (is_err_record) {
                 offset += snprintf(output, sizeof(buffer) - offset, "%lu.%06lu",
                                    l->last_seen.tv_sec, l->last_seen.tv_usec);
@@ -1045,7 +1061,7 @@ void print_passet(pdns_record *l, pdns_asset *p, ldns_rr *rr,
             if (is_err_record)
                 offset += snprintf(output+offset, sizeof(buffer) - offset, "%d", PASSET_ERR_COUNT);
             else
-                offset += snprintf(output+offset, sizeof(buffer) - offset, "%lu", p->seen);
+                offset += snprintf(output+offset, sizeof(buffer) - offset, "%"PRIu64, p->seen);
         }
 #ifdef HAVE_JSON
     }
@@ -1441,6 +1457,11 @@ void parse_field_flags(char *args)
     for (i = 0; i < len; i++)
     {
         switch(args[i]) {
+            case 'H': /* Timestamp(YMDHMS) */
+                config.fieldsf |= FIELD_TIMESTAMP_YMDHMS;
+                dlog("[D] Enabling field: FIELD_TIMESTAMP_YMDHMS\n");
+                ok++;
+                break;
             case 'S': /* Timestamp(s) */
                 config.fieldsf |= FIELD_TIMESTAMP_S;
                 dlog("[D] Enabling field: FIELD_TIMESTAMP_S\n");

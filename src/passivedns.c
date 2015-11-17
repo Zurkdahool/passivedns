@@ -1093,9 +1093,9 @@ void usage()
     olog(" -h              This help message.\n\n");
     olog(" FIELDS:\n");
     olog("\n");
-    olog("   S: Timestamp(s)  M: Timestamp(ms)  c: Client IP  s: Server IP\n");
-    olog("   C: Class         Q: Query          T: Type       A: Answer\n");
-    olog("   t: TTL           n: Count\n");
+    olog("   H: YMD-HMS Stamp S: Timestamp(s)  M: Timestamp(ms)  c: Client IP  \n");
+    olog("   s: Server IP     C: Class         Q: Query          T: Type       \n");
+    olog("   A: Answer        t: TTL           n: Count\n");
     olog("\n");
     olog(" FLAGS:\n");
     olog("\n");
@@ -1103,8 +1103,11 @@ void usage()
     olog("   4:A      6:AAAA  C:CNAME  D:DNAME  N:NAPTR  O:SOA  L:LOC   F:SPF   I:HINFO\n");
     olog("   P:PTR    R:RP    S:SRV    T:TXT    M:MX     n:NS   d:DNSEC H:SSHFP\n");
     olog("   L also enables GPOS\n");
+#ifdef LDNS_RR_TYPE_NSEC3PARAM
+    olog("   d enables DS, DNSKEY, NSEC, NSEC3, RRSIG\n");
+#else
     olog("   d enables DS, DNSKEY, NSEC, NSEC3, NSEC3PARAM, RRSIG\n");
-
+#endif /* LDNS_RR_TYPE_NSEC3PARAM */
     olog("\n");
     olog(" * For Server Return Code (SRC) Errors:\n");
     olog("   f:FORMERR   s:SERVFAIL  x:NXDOMAIN  o:NOTIMPL  r:REFUSED\n");
@@ -1168,6 +1171,7 @@ int main(int argc, char *argv[])
     config.dnsf = 0;
     config.log_delimiter = "||";
     config.fieldsf = 0;
+    /* config.fieldsf |= FIELD_TIMESTAMP_YMDHMS; /* not on by default  */
     config.fieldsf |= FIELD_TIMESTAMP_S;
     config.fieldsf |= FIELD_TIMESTAMP_MS;
     config.fieldsf |= FIELD_CLIENT;
