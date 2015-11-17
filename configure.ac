@@ -78,7 +78,7 @@ if test "$with_ldns_libraries" != "no"; then
     LDFLAGS="${LDFLAGS} -L${with_ldns_libraries}"
 fi
 
-LDFLAGS="${LDFLAGS} -lldns"
+LDFLAGS="${LDFLAGS} -lldns -lhiredis"
 
 # Check or ldns headers
 AC_CHECK_HEADER(ldns/ldns.h,,LIBLDNS_H="no")
