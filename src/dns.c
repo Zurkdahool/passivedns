@@ -565,6 +565,7 @@ void update_pdns_record_asset(packetinfo *pi, pdns_record *pr,
                    print it, then return */
                 passet->seen++;
                 passet->last_seen = pi->pheader->ts;
+                passet->af        = pi->cxt->af;
                 passet->cip       = pi->cxt->s_ip; /* This should always be the client IP */
                 passet->sip       = pi->cxt->d_ip; /* This should always be the server IP */
                 if (rr->_ttl > passet->rr->_ttl)
@@ -611,7 +612,6 @@ void update_pdns_record_asset(packetinfo *pi, pdns_record *pr,
     passet->af = pi->cxt->af;
     passet->cip = pi->cxt->s_ip; /* This should always be the client IP */
     passet->sip = pi->cxt->d_ip; /* This should always be the server IP */
-    passet->proto = pi->proto;
     passet->prev = NULL;
     len = strlen((char *)rdomain_name);
     passet->answer = calloc(1, (len + 1));
@@ -713,7 +713,7 @@ void print_passet(pdns_record *l, pdns_asset *p, ldns_rr *rr,
     rr_type  = malloc(12);
     rr_rcode = malloc(20);
 
-    switch (p->proto) {
+    switch (l->proto) {
         case IP_PROTO_TCP:
             snprintf(proto, 4, "tcp");
             break;
@@ -721,7 +721,7 @@ void print_passet(pdns_record *l, pdns_asset *p, ldns_rr *rr,
             snprintf(proto, 4, "udp");
             break;
         default:
-            snprintf(proto, 4, "%d", p->proto);
+            snprintf(proto, 4, "%d", l->proto);
             break;
     }
 
@@ -1145,6 +1145,7 @@ pdns_record *get_pdns_record(uint64_t dnshash, packetinfo *pi,
                 (const char *)pdnsr->qname) == 0) {
             /* match :) */
             pdnsr->last_seen = pi->pheader->ts;
+            pdnsr->af = pi->cxt->af;
             pdnsr->cip = pi->cxt->s_ip; /* This should always be the client IP */
             pdnsr->sip = pi->cxt->d_ip; /* This should always be the server IP */
             return pdnsr;
@@ -1172,6 +1173,7 @@ pdns_record *get_pdns_record(uint64_t dnshash, packetinfo *pi,
     pdnsr->next = head;
     pdnsr->prev = NULL;
     pdnsr->passet = NULL;
+    pdnsr->proto = pi->proto;
     len = strlen((char *)domain_name);
     pdnsr->qname = calloc(1, (len + 1));
     strncpy((char *)pdnsr->qname, (char *)domain_name, len);
